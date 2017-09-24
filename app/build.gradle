@@ -1,8 +1,12 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
+
+static def getSecuredString(String property) {
+    Properties properties = new Properties()
+    properties.load(new FileInputStream("/Users/harismawan/Developer/Config/newsreader"))
+    return "\"" + properties.getProperty(property) + "\""
+}
 
 android {
     compileSdkVersion 26
@@ -14,6 +18,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        buildConfigField "String", "baseUrl", getSecuredString("baseUrl")
+        buildConfigField "String", "apiKey", getSecuredString("apiKey")
     }
     buildTypes {
         release {
@@ -30,8 +36,10 @@ dependencies {
     })
     testImplementation 'junit:junit:4.12'
 
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
     implementation 'eu.davidea:flexible-adapter:5.0.0-rc2'
     implementation 'eu.davidea:flexible-adapter-databinding:1.0.0-b1@aar'
+    implementation 'com.github.arimorty:floatingsearchview:2.1.1'
 }
