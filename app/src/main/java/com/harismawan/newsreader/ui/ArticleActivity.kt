@@ -1,5 +1,6 @@
 package com.harismawan.newsreader.ui
 
+import android.content.Intent
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -21,26 +22,29 @@ import retrofit2.Response
 
 class ArticleActivity : AppCompatActivity(), FloatingSearchView.OnHomeActionClickListener {
 
-    private var id = ""
+    private var linearLayoutManager = LinearLayoutManager(this)
     private var articles = ArrayList<Article>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_article)
 
-        id = intent.getStringExtra(Constant.extraId)
         searchArticle.setOnHomeActionClickListener(this)
 
-        val linearLayoutManager = LinearLayoutManager(this)
         recyclerArticle.layoutManager = linearLayoutManager
 
         checkInternetConnection()
+
+        if (savedInstanceState != null)
+            linearLayoutManager.scrollToPosition(savedInstanceState.getInt(Constant.extraPosition))
     }
 
     private fun initAdapter() {
         val adapter = FlexibleAdapter<Article>(articles)
         adapter.addListener(FlexibleAdapter.OnItemClickListener { position ->
-
+            val change = Intent(this, ArticleDetailActivity::class.java)
+            change.putExtra(Constant.extraUrl, articles[position].url)
+            startActivity(change)
             false
         })
         recyclerArticle.adapter = adapter
@@ -72,7 +76,7 @@ class ArticleActivity : AppCompatActivity(), FloatingSearchView.OnHomeActionClic
     }
 
     private fun loadData() {
-        val call = Util.getAPIHelper()?.getAllArticle(id, Constant.apiKey)
+        val call = Util.getAPIHelper()?.getAllArticle(intent.getStringExtra(Constant.extraId), Constant.apiKey)
         call?.enqueue(object : Callback<ListArticle> {
             override fun onResponse(call: Call<ListArticle>, response: Response<ListArticle>) {
                 if (response.isSuccessful) {
@@ -92,6 +96,11 @@ class ArticleActivity : AppCompatActivity(), FloatingSearchView.OnHomeActionClic
                 showSnackbar(R.string.failed_connect_server, R.string.retry, Constant.typeLoadData)
             }
         })
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(Constant.extraPosition, linearLayoutManager.findFirstVisibleItemPosition())
     }
 
     override fun onHomeClicked() {

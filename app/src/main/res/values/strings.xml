@@ -6,4 +6,6 @@
     <string name="no_internet">No internet connection!</string>
     <string name="failed_connect_server">Failed connect to the server!</string>
     <string name="failed_get_data">Failed to get data from the server!</string>
+    <string name="powered_by">Powered by</string>
+    <string name="news_api">newsapi.org</string>
 </resources>

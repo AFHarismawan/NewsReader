@@ -21,16 +21,19 @@ import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
 
+    private var linearLayoutManager = LinearLayoutManager(this)
     private var sources = ArrayList<Source>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val linearLayoutManager = LinearLayoutManager(this)
         recyclerSource.layoutManager = linearLayoutManager
 
         checkInternetConnection()
+
+        if (savedInstanceState != null)
+            linearLayoutManager.scrollToPosition(savedInstanceState.getInt(Constant.extraPosition))
     }
 
     private fun initAdapter() {
@@ -90,5 +93,10 @@ class MainActivity : AppCompatActivity() {
                 showSnackbar(R.string.failed_connect_server, R.string.retry, Constant.typeLoadData)
             }
         })
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(Constant.extraPosition, linearLayoutManager.findFirstVisibleItemPosition())
     }
 }

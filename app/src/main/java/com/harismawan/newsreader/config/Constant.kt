@@ -9,10 +9,13 @@ import com.harismawan.newsreader.BuildConfig
 class Constant {
 
     companion object {
-        val baseUrl = BuildConfig.baseUrl
+        val baseUrl = "https://newsapi.org/v1/"
         val apiKey = BuildConfig.apiKey
 
         val extraId = "id"
+        val extraUrl = "url"
+        val extraPosition = "position"
+
         val typeLoadData = 0
         val typeCheckInternet = 1
     }

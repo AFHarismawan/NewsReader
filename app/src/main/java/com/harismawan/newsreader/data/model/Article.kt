@@ -1,5 +1,6 @@
 package com.harismawan.newsreader.data.model
 
+import android.text.TextUtils
 import android.view.View
 import com.google.gson.annotations.SerializedName
 import com.harismawan.newsreader.R
@@ -42,11 +43,16 @@ class Article : AbstractFlexibleItem<Article.ArticleViewHolder>() {
     override fun bindViewHolder(adapter: FlexibleAdapter<out IFlexible<*>>?, holder: Article.ArticleViewHolder?,
                                 position: Int, payloads: MutableList<Any?>?) {
         val v = holder?.itemView
-        Picasso.with(v?.context).load(image).into(v?.image)
+
+        if (!TextUtils.isEmpty(image))
+            Picasso.with(v?.context).load(image).placeholder(R.drawable.ic_image_black_24dp)
+                    .error(R.drawable.ic_broken_image_black_24dp).into(v?.image)
+        else
+            v?.image?.setImageResource(R.drawable.ic_image_black_24dp)
         v?.title?.text = title
 
         if (author.equals(null)) author = ""
-        else author = "| $author"
+        else "| $author"
 
         val t = Util.getTime(time!!)
         val sub = "$t $author"
