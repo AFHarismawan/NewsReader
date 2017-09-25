@@ -60,8 +60,7 @@ class Article : AbstractFlexibleItem<Article.ArticleViewHolder>(), IFilterable {
     }
 
     override fun filter(constraint: String?): Boolean {
-        return title?.toLowerCase()?.trim()!!.contains(constraint!!) ||
-                author?.toLowerCase()?.trim()!!.contains(constraint)
+        return title?.toLowerCase()?.trim()!!.contains(constraint!!)
     }
 
     class ArticleViewHolder(view: View?, adapter: FlexibleAdapter<out IFlexible<*>>?) : FlexibleViewHolder(view, adapter)
