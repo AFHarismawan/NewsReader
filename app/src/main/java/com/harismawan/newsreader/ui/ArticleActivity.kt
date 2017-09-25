@@ -20,27 +20,33 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class ArticleActivity : AppCompatActivity(), FloatingSearchView.OnHomeActionClickListener {
+class ArticleActivity : AppCompatActivity(), FloatingSearchView.OnHomeActionClickListener,
+        FloatingSearchView.OnQueryChangeListener {
 
     private var linearLayoutManager = LinearLayoutManager(this)
     private var articles = ArrayList<Article>()
+    private var adapter = FlexibleAdapter<Article>(articles)
+    private var savedInstanceState = Bundle()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_article)
 
-        searchArticle.setOnHomeActionClickListener(this)
-
         recyclerArticle.layoutManager = linearLayoutManager
+
+        searchArticle.setOnHomeActionClickListener(this)
+        searchArticle.setOnQueryChangeListener(this)
 
         checkInternetConnection()
 
-        if (savedInstanceState != null)
+        if (savedInstanceState != null) {
+            this.savedInstanceState = savedInstanceState
             linearLayoutManager.scrollToPosition(savedInstanceState.getInt(Constant.extraPosition))
+        }
     }
 
     private fun initAdapter() {
-        val adapter = FlexibleAdapter<Article>(articles)
+        adapter = FlexibleAdapter(articles)
         adapter.addListener(FlexibleAdapter.OnItemClickListener { position ->
             val change = Intent(this, ArticleDetailActivity::class.java)
             change.putExtra(Constant.extraUrl, articles[position].url)
@@ -48,6 +54,22 @@ class ArticleActivity : AppCompatActivity(), FloatingSearchView.OnHomeActionClic
             false
         })
         recyclerArticle.adapter = adapter
+
+        if (this.savedInstanceState.getString(Constant.extraSavedQuery) != null) {
+            val savedQuery = savedInstanceState.getString(Constant.extraSavedQuery)
+            executeSearch(savedQuery)
+        }
+    }
+
+    override fun onSearchTextChanged(oldQuery: String?, newQuery: String?) {
+        executeSearch(newQuery)
+    }
+
+    private fun executeSearch(query: String?) {
+        if (adapter.hasNewSearchText(query)) {
+            adapter.searchText = query
+            adapter.filterItems()
+        }
     }
 
     private fun checkInternetConnection() {
@@ -101,6 +123,7 @@ class ArticleActivity : AppCompatActivity(), FloatingSearchView.OnHomeActionClic
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt(Constant.extraPosition, linearLayoutManager.findFirstVisibleItemPosition())
+        outState.putString(Constant.extraSavedQuery, searchArticle.query)
     }
 
     override fun onHomeClicked() {

@@ -4,10 +4,12 @@ import android.content.Intent
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.TextView
+import com.arlib.floatingsearchview.FloatingSearchView
 import com.harismawan.newsreader.R
 import com.harismawan.newsreader.config.Constant
 import com.harismawan.newsreader.data.model.ListSource
@@ -19,10 +21,14 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class MainActivity : AppCompatActivity() {
+
+
+class MainActivity : AppCompatActivity(), FloatingSearchView.OnQueryChangeListener {
 
     private var linearLayoutManager = LinearLayoutManager(this)
     private var sources = ArrayList<Source>()
+    private var adapter = FlexibleAdapter<Source>(sources)
+    private var savedInstanceState = Bundle()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,12 +38,16 @@ class MainActivity : AppCompatActivity() {
 
         checkInternetConnection()
 
-        if (savedInstanceState != null)
+        searchSource.setOnQueryChangeListener(this)
+
+        if (savedInstanceState != null) {
+            this.savedInstanceState = savedInstanceState
             linearLayoutManager.scrollToPosition(savedInstanceState.getInt(Constant.extraPosition))
+        }
     }
 
     private fun initAdapter() {
-        val adapter = FlexibleAdapter<Source>(sources)
+        adapter = FlexibleAdapter(sources)
         adapter.addListener(FlexibleAdapter.OnItemClickListener { position ->
             val change = Intent(this, ArticleActivity::class.java)
             change.putExtra(Constant.extraId, sources[position].id)
@@ -45,6 +55,22 @@ class MainActivity : AppCompatActivity() {
             false
         })
         recyclerSource.adapter = adapter
+
+        if (this.savedInstanceState.getString(Constant.extraSavedQuery) != null) {
+            val savedQuery = savedInstanceState.getString(Constant.extraSavedQuery)
+            executeSearch(savedQuery)
+        }
+    }
+
+    override fun onSearchTextChanged(oldQuery: String?, newQuery: String?) {
+        executeSearch(newQuery)
+    }
+
+    private fun executeSearch(query: String?) {
+        if (adapter.hasNewSearchText(query)) {
+            adapter.searchText = query
+            adapter.filterItems()
+        }
     }
 
     private fun checkInternetConnection() {
@@ -97,6 +123,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        outState.putString(Constant.extraSavedQuery, searchSource.query)
         outState.putInt(Constant.extraPosition, linearLayoutManager.findFirstVisibleItemPosition())
     }
 }

@@ -8,4 +8,5 @@
     <string name="failed_get_data">Failed to get data from the server!</string>
     <string name="powered_by">Powered by</string>
     <string name="news_api">newsapi.org</string>
+    <string name="sort">SORT</string>
 </resources>

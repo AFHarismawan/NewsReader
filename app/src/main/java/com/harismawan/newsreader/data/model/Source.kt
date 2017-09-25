@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName
 import com.harismawan.newsreader.R
 import eu.davidea.flexibleadapter.FlexibleAdapter
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem
+import eu.davidea.flexibleadapter.items.IFilterable
 import eu.davidea.flexibleadapter.items.IFlexible
 import eu.davidea.viewholders.FlexibleViewHolder
 import kotlinx.android.synthetic.main.item_source.view.*
@@ -13,7 +14,7 @@ import kotlinx.android.synthetic.main.item_source.view.*
  * Created by harismawan on 9/24/17.
  */
 
-class Source : AbstractFlexibleItem<Source.SourceViewHolder>() {
+class Source : AbstractFlexibleItem<Source.SourceViewHolder>(), IFilterable {
 
     @SerializedName("id")
     var id : String? = null
@@ -36,6 +37,10 @@ class Source : AbstractFlexibleItem<Source.SourceViewHolder>() {
         val v = holder?.itemView
         v?.name?.text = name
         v?.desc?.text = desc
+    }
+
+    override fun filter(constraint: String?): Boolean {
+        return name?.toLowerCase()?.trim()!!.contains(constraint!!)
     }
 
     class SourceViewHolder(view: View?, adapter: FlexibleAdapter<out IFlexible<*>>?) : FlexibleViewHolder(view, adapter)

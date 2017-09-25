@@ -37,8 +37,13 @@ class Util {
         }
 
         fun getTime(str: String) : String {
-            val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
-            val date = df.parse(str)
+            val b = StringBuilder(str)
+            b.deleteCharAt(str.length - 1)
+
+            val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+            df.timeZone = TimeZone.getTimeZone("UTC")
+            val date = df.parse(b.toString())
+
             return DateUtils.getRelativeTimeSpanString(date.time, System.currentTimeMillis(),
                     DateUtils.MINUTE_IN_MILLIS).toString()
         }

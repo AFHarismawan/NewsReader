@@ -8,6 +8,7 @@ import com.harismawan.newsreader.util.Util
 import com.squareup.picasso.Picasso
 import eu.davidea.flexibleadapter.FlexibleAdapter
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem
+import eu.davidea.flexibleadapter.items.IFilterable
 import eu.davidea.flexibleadapter.items.IFlexible
 import eu.davidea.viewholders.FlexibleViewHolder
 import kotlinx.android.synthetic.main.item_article.view.*
@@ -16,7 +17,7 @@ import kotlinx.android.synthetic.main.item_article.view.*
  * Created by harismawan on 9/24/17.
  */
 
-class Article : AbstractFlexibleItem<Article.ArticleViewHolder>() {
+class Article : AbstractFlexibleItem<Article.ArticleViewHolder>(), IFilterable {
 
     @SerializedName("title")
     var title : String? = null
@@ -51,12 +52,16 @@ class Article : AbstractFlexibleItem<Article.ArticleViewHolder>() {
             v?.image?.setImageResource(R.drawable.ic_image_black_24dp)
         v?.title?.text = title
 
-        if (author.equals(null)) author = ""
-        else "| $author"
-
         val t = Util.getTime(time!!)
-        val sub = "$t $author"
+        var sub = t
+        if (!TextUtils.isEmpty(author) && !author.equals(null))
+            sub += " | $author"
         v?.subtitle?.text = sub
+    }
+
+    override fun filter(constraint: String?): Boolean {
+        return title?.toLowerCase()?.trim()!!.contains(constraint!!) ||
+                author?.toLowerCase()?.trim()!!.contains(constraint)
     }
 
     class ArticleViewHolder(view: View?, adapter: FlexibleAdapter<out IFlexible<*>>?) : FlexibleViewHolder(view, adapter)
