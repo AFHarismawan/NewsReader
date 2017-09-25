@@ -1,6 +1,5 @@
 package com.harismawan.newsreader.ui
 
-import android.content.Intent
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -8,40 +7,43 @@ import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.TextView
+import com.arlib.floatingsearchview.FloatingSearchView
 import com.harismawan.newsreader.R
 import com.harismawan.newsreader.config.Constant
-import com.harismawan.newsreader.data.model.ListSource
-import com.harismawan.newsreader.data.model.Source
+import com.harismawan.newsreader.data.model.Article
+import com.harismawan.newsreader.data.model.ListArticle
 import com.harismawan.newsreader.util.Util
 import eu.davidea.flexibleadapter.FlexibleAdapter
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_article.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class MainActivity : AppCompatActivity() {
+class ArticleActivity : AppCompatActivity(), FloatingSearchView.OnHomeActionClickListener {
 
-    private var sources = ArrayList<Source>()
+    private var id = ""
+    private var articles = ArrayList<Article>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_article)
+
+        id = intent.getStringExtra(Constant.extraId)
+        searchArticle.setOnHomeActionClickListener(this)
 
         val linearLayoutManager = LinearLayoutManager(this)
-        recyclerSource.layoutManager = linearLayoutManager
+        recyclerArticle.layoutManager = linearLayoutManager
 
         checkInternetConnection()
     }
 
     private fun initAdapter() {
-        val adapter = FlexibleAdapter<Source>(sources)
+        val adapter = FlexibleAdapter<Article>(articles)
         adapter.addListener(FlexibleAdapter.OnItemClickListener { position ->
-            val change = Intent(this, ArticleActivity::class.java)
-            change.putExtra(Constant.extraId, sources[position].id)
-            startActivity(change)
+
             false
         })
-        recyclerSource.adapter = adapter
+        recyclerArticle.adapter = adapter
     }
 
     private fun checkInternetConnection() {
@@ -70,12 +72,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadData() {
-        val call = Util.getAPIHelper()?.getAllSource()
-        call?.enqueue(object : Callback<ListSource> {
-            override fun onResponse(call: Call<ListSource>, response: Response<ListSource>) {
+        val call = Util.getAPIHelper()?.getAllArticle(id, Constant.apiKey)
+        call?.enqueue(object : Callback<ListArticle> {
+            override fun onResponse(call: Call<ListArticle>, response: Response<ListArticle>) {
                 if (response.isSuccessful) {
-                    sources.clear()
-                    sources.addAll(response.body()!!.sources)
+                    articles.clear()
+                    articles.addAll(response.body()!!.articles)
                     initAdapter()
                     progressBar.visibility = View.GONE
                 } else {
@@ -84,11 +86,15 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onFailure(call: Call<ListSource>, t: Throwable) {
+            override fun onFailure(call: Call<ListArticle>, t: Throwable) {
                 t.printStackTrace()
                 progressBar.visibility = View.GONE
                 showSnackbar(R.string.failed_connect_server, R.string.retry, Constant.typeLoadData)
             }
         })
+    }
+
+    override fun onHomeClicked() {
+        finish()
     }
 }

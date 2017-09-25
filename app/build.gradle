@@ -42,4 +42,5 @@ dependencies {
     implementation 'eu.davidea:flexible-adapter:5.0.0-rc2'
     implementation 'eu.davidea:flexible-adapter-databinding:1.0.0-b1@aar'
     implementation 'com.github.arimorty:floatingsearchview:2.1.1'
+    implementation 'com.squareup.picasso:picasso:2.5.2'
 }

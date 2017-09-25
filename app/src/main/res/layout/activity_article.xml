@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    tools:context="com.harismawan.newsreader.ui.MainActivity">
+    tools:context="com.harismawan.newsreader.ui.ArticleActivity">
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -16,7 +16,7 @@
         android:layout_centerInParent="true" />
 
     <com.arlib.floatingsearchview.FloatingSearchView
-        android:id="@+id/searchSource"
+        android:id="@+id/searchArticle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:floatingSearch_searchBarMarginLeft="@dimen/search_view_margin"
@@ -25,17 +25,16 @@
         app:floatingSearch_searchHint="@string/search"
         app:floatingSearch_suggestionsListAnimDuration="250"
         app:floatingSearch_showSearchKey="false"
-        app:floatingSearch_leftActionMode="showSearch"
+        app:floatingSearch_leftActionMode="showHome"
         app:floatingSearch_menu="@menu/menu_main"
         app:floatingSearch_close_search_on_keyboard_dismiss="true"/>
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerSource"
+        android:id="@+id/recyclerArticle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="@dimen/recycler_top_margin"
         android:clipToPadding="false"
         android:paddingBottom="@dimen/recycler_outer_padding"
         android:scrollbars="vertical" />
-
 </RelativeLayout>

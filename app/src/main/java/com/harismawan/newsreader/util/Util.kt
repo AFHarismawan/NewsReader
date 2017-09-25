@@ -3,14 +3,17 @@ package com.harismawan.newsreader.util
 import android.content.Context
 import android.graphics.Typeface
 import android.net.ConnectivityManager
+import android.text.format.DateUtils
 import com.harismawan.slapp.data.APIHelper
 import com.harismawan.slapp.data.RetrofitClient
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Created by harismawan on 9/24/17.
  */
 
-class Util() {
+class Util {
 
     companion object {
         fun isConnected(context: Context): Boolean {
@@ -31,6 +34,13 @@ class Util() {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
+
+        fun getTime(str: String) : String {
+            val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX")
+            val date = df.parse(str)
+            return DateUtils.getRelativeTimeSpanString(date.time, System.currentTimeMillis(),
+                    DateUtils.MINUTE_IN_MILLIS).toString()
         }
     }
 }

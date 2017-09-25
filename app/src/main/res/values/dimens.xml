@@ -8,8 +8,11 @@
 
     <dimen name="card_view_margin">16dp</dimen>
     <dimen name="card_view_margin_half">8dp</dimen>
-    <dimen name="search_view_margin">16dp</dimen>
-    <dimen name="recycler_top_margin">70dp</dimen>
+    <dimen name="search_view_margin_top">10dp</dimen>
+    <dimen name="search_view_margin">13dp</dimen>
+    <dimen name="recycler_top_margin">78dp</dimen>
     <dimen name="text_size_medium">16sp</dimen>
     <dimen name="text_size_small">14sp</dimen>
+    <dimen name="image_view_margin">16dp</dimen>
+    <dimen name="image_view_size">70dp</dimen>
 </resources>
