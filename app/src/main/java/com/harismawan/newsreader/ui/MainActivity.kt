@@ -4,8 +4,8 @@ import android.content.Intent
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
 import android.support.design.widget.Snackbar
+import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.TextView
@@ -23,7 +23,8 @@ import retrofit2.Response
 
 
 
-class MainActivity : AppCompatActivity(), FloatingSearchView.OnQueryChangeListener {
+class MainActivity : AppCompatActivity(), FloatingSearchView.OnQueryChangeListener,
+        SwipeRefreshLayout.OnRefreshListener{
 
     private var linearLayoutManager = LinearLayoutManager(this)
     private var sources = ArrayList<Source>()
@@ -35,10 +36,9 @@ class MainActivity : AppCompatActivity(), FloatingSearchView.OnQueryChangeListen
         setContentView(R.layout.activity_main)
 
         recyclerSource.layoutManager = linearLayoutManager
-
-        checkInternetConnection()
-
         searchSource.setOnQueryChangeListener(this)
+        refresh.setOnRefreshListener(this)
+        initialize()
 
         if (savedInstanceState != null) {
             this.savedInstanceState = savedInstanceState
@@ -64,6 +64,7 @@ class MainActivity : AppCompatActivity(), FloatingSearchView.OnQueryChangeListen
 
     override fun onSearchTextChanged(oldQuery: String?, newQuery: String?) {
         executeSearch(newQuery)
+        refresh.isEnabled = !adapter.hasSearchText()
     }
 
     private fun executeSearch(query: String?) {
@@ -73,10 +74,15 @@ class MainActivity : AppCompatActivity(), FloatingSearchView.OnQueryChangeListen
         }
     }
 
-    private fun checkInternetConnection() {
+    override fun onRefresh() {
+        initialize()
+    }
+
+    private fun initialize() {
         if (!Util.isConnected(this)) {
-            progressBar.visibility = View.GONE
             showSnackbar(R.string.no_internet, R.string.retry, Constant.typeCheckInternet)
+            progressBar.visibility = View.GONE
+            refresh.isRefreshing = false
         } else {
             loadData()
         }
@@ -88,7 +94,7 @@ class MainActivity : AppCompatActivity(), FloatingSearchView.OnQueryChangeListen
                 .setAction(getString(action)) {
                     progressBar.visibility = View.VISIBLE
                     if (type == 0) loadData()
-                    else if (type == 1) checkInternetConnection()
+                    else if (type == 1) initialize()
                 }
 
         snackbar.setActionTextColor(Color.RED)
@@ -106,17 +112,18 @@ class MainActivity : AppCompatActivity(), FloatingSearchView.OnQueryChangeListen
                     sources.clear()
                     sources.addAll(response.body()!!.sources)
                     initAdapter()
-                    progressBar.visibility = View.GONE
                 } else {
-                    progressBar.visibility = View.GONE
                     showSnackbar(R.string.failed_get_data, R.string.retry, Constant.typeLoadData)
                 }
+                progressBar.visibility = View.GONE
+                refresh.isRefreshing = false
             }
 
             override fun onFailure(call: Call<ListSource>, t: Throwable) {
                 t.printStackTrace()
-                progressBar.visibility = View.GONE
                 showSnackbar(R.string.failed_connect_server, R.string.retry, Constant.typeLoadData)
+                progressBar.visibility = View.GONE
+                refresh.isRefreshing = false
             }
         })
     }

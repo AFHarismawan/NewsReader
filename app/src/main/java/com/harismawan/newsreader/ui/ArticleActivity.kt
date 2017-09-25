@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.TextView
@@ -21,7 +22,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class ArticleActivity : AppCompatActivity(), FloatingSearchView.OnHomeActionClickListener,
-        FloatingSearchView.OnQueryChangeListener {
+        FloatingSearchView.OnQueryChangeListener, SwipeRefreshLayout.OnRefreshListener {
 
     private var linearLayoutManager = LinearLayoutManager(this)
     private var articles = ArrayList<Article>()
@@ -33,11 +34,10 @@ class ArticleActivity : AppCompatActivity(), FloatingSearchView.OnHomeActionClic
         setContentView(R.layout.activity_article)
 
         recyclerArticle.layoutManager = linearLayoutManager
-
         searchArticle.setOnHomeActionClickListener(this)
         searchArticle.setOnQueryChangeListener(this)
-
-        checkInternetConnection()
+        refresh.setOnRefreshListener(this)
+        initialize()
 
         if (savedInstanceState != null) {
             this.savedInstanceState = savedInstanceState
@@ -63,6 +63,7 @@ class ArticleActivity : AppCompatActivity(), FloatingSearchView.OnHomeActionClic
 
     override fun onSearchTextChanged(oldQuery: String?, newQuery: String?) {
         executeSearch(newQuery)
+        refresh.isEnabled = !adapter.hasSearchText()
     }
 
     private fun executeSearch(query: String?) {
@@ -72,10 +73,15 @@ class ArticleActivity : AppCompatActivity(), FloatingSearchView.OnHomeActionClic
         }
     }
 
-    private fun checkInternetConnection() {
+    override fun onRefresh() {
+        initialize()
+    }
+
+    private fun initialize() {
         if (!Util.isConnected(this)) {
-            progressBar.visibility = View.GONE
             showSnackbar(R.string.no_internet, R.string.retry, Constant.typeCheckInternet)
+            progressBar.visibility = View.GONE
+            refresh.isRefreshing = false
         } else {
             loadData()
         }
@@ -87,7 +93,7 @@ class ArticleActivity : AppCompatActivity(), FloatingSearchView.OnHomeActionClic
                 .setAction(getString(action)) {
                     progressBar.visibility = View.VISIBLE
                     if (type == 0) loadData()
-                    else if (type == 1) checkInternetConnection()
+                    else if (type == 1) initialize()
                 }
 
         snackbar.setActionTextColor(Color.RED)
@@ -105,17 +111,18 @@ class ArticleActivity : AppCompatActivity(), FloatingSearchView.OnHomeActionClic
                     articles.clear()
                     articles.addAll(response.body()!!.articles)
                     initAdapter()
-                    progressBar.visibility = View.GONE
                 } else {
-                    progressBar.visibility = View.GONE
                     showSnackbar(R.string.failed_get_data, R.string.retry, Constant.typeLoadData)
                 }
+                progressBar.visibility = View.GONE
+                refresh.isRefreshing = false
             }
 
             override fun onFailure(call: Call<ListArticle>, t: Throwable) {
                 t.printStackTrace()
-                progressBar.visibility = View.GONE
                 showSnackbar(R.string.failed_connect_server, R.string.retry, Constant.typeLoadData)
+                progressBar.visibility = View.GONE
+                refresh.isRefreshing = false
             }
         })
     }

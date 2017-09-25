@@ -29,12 +29,18 @@
         app:floatingSearch_menu="@menu/menu_main"
         app:floatingSearch_close_search_on_keyboard_dismiss="true"/>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerArticle"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/recycler_top_margin"
-        android:clipToPadding="false"
-        android:paddingBottom="@dimen/recycler_outer_padding"
-        android:scrollbars="vertical" />
+        android:layout_marginTop="@dimen/recycler_top_margin">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerArticle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="@dimen/recycler_outer_padding"
+            android:scrollbars="vertical" />
+    </android.support.v4.widget.SwipeRefreshLayout>
 </RelativeLayout>
